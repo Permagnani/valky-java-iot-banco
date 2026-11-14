@@ -40,4 +40,14 @@ class UsuarioControllerTest {
                 .andExpect(jsonPath("$.email").exists())
                 .andExpect(jsonPath("$.senha").exists());
     }
+
+    @Test
+    void deveRetornar404QuandoUsuarioNaoExistir() throws Exception {
+
+        mockMvc.perform(
+                        org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                                .get("/api/usuarios/999")
+                )
+                .andExpect(status().isNotFound());
+    }
 }
