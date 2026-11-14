@@ -6,6 +6,8 @@ import br.com.fiap.valky.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import br.com.fiap.valky.dto.UsuarioCadastroDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,8 +25,8 @@ public class UsuarioService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public List<Usuario> listarTodos() {
-        return usuarioRepository.findAll();
+    public Page<Usuario> listarTodos(Pageable pageable) {
+        return usuarioRepository.findAll(pageable);
     }
 
     public Optional<Usuario> buscarPorId(Long id) {
@@ -37,10 +39,6 @@ public class UsuarioService {
 
     public boolean emailJaCadastrado(String email) {
         return usuarioRepository.existsByEmail(email);
-    }
-
-    public void excluir(Long id) {
-        usuarioRepository.deleteById(id);
     }
 
     public Usuario cadastrar(Usuario usuario) {
@@ -64,5 +62,30 @@ public class UsuarioService {
         usuario.setTelefone(dto.getTelefone());
 
         return cadastrar(usuario);
+    }
+    public Usuario atualizar(Long id, Usuario dados) {
+
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Usuário não encontrado."));
+
+        if (!usuario.getEmail().equals(dados.getEmail())
+                && usuarioRepository.existsByEmail(dados.getEmail())) {
+            throw new IllegalArgumentException("E-mail já cadastrado.");
+        }
+
+        usuario.setNome(dados.getNome());
+        usuario.setEmail(dados.getEmail());
+        usuario.setTelefone(dados.getTelefone());
+
+        return usuarioRepository.save(usuario);
+    }
+
+    public void excluir(Long id) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Usuário não encontrado."));
+
+        usuarioRepository.delete(usuario);
     }
 }
