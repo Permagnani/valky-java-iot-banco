@@ -39,6 +39,7 @@ public class FichaContextoService {
                 .orElse(new FichaContexto());
 
         fichaExistente.setUsuario(usuario);
+        fichaExistente.setDataAtualizacao(java.time.LocalDateTime.now());
         fichaExistente.setInformacoesImportantes(
                 ficha.getInformacoesImportantes());
         fichaExistente.setOrientacoesEmergencia(

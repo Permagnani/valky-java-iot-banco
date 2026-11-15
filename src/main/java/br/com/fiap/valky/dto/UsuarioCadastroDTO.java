@@ -1,3 +1,4 @@
+
 package br.com.fiap.valky.dto;
 
 import jakarta.validation.constraints.Email;
@@ -18,6 +19,7 @@ public class UsuarioCadastroDTO {
     @Size(min = 8, message = "A senha deve ter pelo menos 8 caracteres.")
     private String senha;
 
+    @Size(max = 20, message = "O telefone deve ter no máximo 20 caracteres.")
     private String telefone;
 
     public String getNome() {

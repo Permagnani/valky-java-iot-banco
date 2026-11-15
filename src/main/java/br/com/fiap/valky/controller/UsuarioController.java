@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import br.com.fiap.valky.dto.UsuarioAtualizacaoDTO;
 
 @RestController
 @RequestMapping("/api/usuarios")
@@ -74,7 +75,7 @@ public class UsuarioController {
     @PutMapping("/{id}")
     public ResponseEntity<UsuarioRespostaDTO> atualizar(
             @PathVariable Long id,
-            @Valid @RequestBody UsuarioCadastroDTO dto) {
+            @Valid @RequestBody UsuarioAtualizacaoDTO dto) {
 
         Usuario dados = new Usuario();
         dados.setNome(dto.getNome());
