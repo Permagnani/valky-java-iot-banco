@@ -10,10 +10,46 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
 
+  # Mensageria (RabbitMQ) - opcao A do requisito de arquitetura distribuida
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    listener:
+      simple:
+        # mensagem com erro nao volta para a fila (evita loop infinito)
+        default-requeue-rejected: false
+
+  # Spring AI - qualquer provedor compativel com a API da OpenAI.
+  # Para Gemini/Groq/etc., defina SPRING_AI_OPENAI_BASE_URL e AI_MODEL (veja README).
+  ai:
+    openai:
+      api-key: ${AI_API_KEY:nao-configurada}
+      chat:
+        model: ${AI_MODEL:gpt-4o-mini}
+
 server:
   port: 8080
+
+valky:
+  jwt:
+    # Obrigatorio (minimo 32 caracteres). Nao ha valor padrao de proposito.
+    secret: ${JWT_SECRET}
+    expiracao-segundos: ${JWT_EXPIRACAO_SEGUNDOS:3600}
+  seed:
+    # Cria um usuario gerente e uma cidada de demonstracao ao subir. Desligue em producao.
+    enabled: ${SEED_ENABLED:true}
+    gerente-email: gerente@valky.com
+    gerente-senha: ${SEED_GERENTE_SENHA:Gerente@123}
+    cidada-email: cidada@valky.com
+    cidada-senha: ${SEED_CIDADA_SENHA:Cidada@123}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html

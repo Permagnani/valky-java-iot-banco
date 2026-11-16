@@ -39,3 +39,6 @@ build/
 ### Local application configuration ###
 application-local.yaml
 application-local.yml
+
+### Segredos locais ###
+.env

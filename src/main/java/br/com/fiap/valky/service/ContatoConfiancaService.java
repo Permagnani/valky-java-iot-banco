@@ -1,8 +1,8 @@
-
 package br.com.fiap.valky.service;
 
 import br.com.fiap.valky.entity.ContatoConfianca;
 import br.com.fiap.valky.entity.Usuario;
+import br.com.fiap.valky.exception.RecursoNaoEncontradoException;
 import br.com.fiap.valky.repository.ContatoConfiancaRepository;
 import br.com.fiap.valky.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
@@ -23,28 +23,27 @@ public class ContatoConfiancaService {
     }
 
     public List<ContatoConfianca> listarPorUsuario(Long usuarioId) {
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() ->
-                        new IllegalArgumentException("Usuário não encontrado."));
-
-        return contatoRepository.findByUsuario(usuario);
+        return contatoRepository.findByUsuario(buscarUsuario(usuarioId));
     }
 
     public ContatoConfianca cadastrar(Long usuarioId, ContatoConfianca contato) {
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() ->
-                        new IllegalArgumentException("Usuário não encontrado."));
-
-        contato.setUsuario(usuario);
+        contato.setUsuario(buscarUsuario(usuarioId));
 
         return contatoRepository.save(contato);
     }
 
-    public void excluir(Long id) {
-        ContatoConfianca contato = contatoRepository.findById(id)
+    /** Só exclui se o contato pertencer à usuária; senão responde como "não encontrado". */
+    public void excluir(Long id, Long usuarioId) {
+        ContatoConfianca contato = contatoRepository.findByIdAndUsuarioId(id, usuarioId)
                 .orElseThrow(() ->
-                        new IllegalArgumentException("Contato não encontrado."));
+                        new RecursoNaoEncontradoException("Contato não encontrado."));
 
         contatoRepository.delete(contato);
+    }
+
+    private Usuario buscarUsuario(Long usuarioId) {
+        return usuarioRepository.findById(usuarioId)
+                .orElseThrow(() ->
+                        new RecursoNaoEncontradoException("Usuário não encontrado."));
     }
 }
