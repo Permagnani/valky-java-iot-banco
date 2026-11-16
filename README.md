@@ -137,8 +137,3 @@ PUT /fichas-contexto/...  ──►  salva ficha (resumo = PENDENTE)
 - Se o RabbitMQ estiver fora do ar, salvar a ficha continua funcionando; use `POST .../resumo` para gerar o resumo manualmente.
 - Se a ficha for editada enquanto a IA responde, o resumo velho é descartado (gravação condicionada à versão da ficha).
 
-## Deploy
-_(link do deploy, se houver)_
-
-## Declaração de uso de IA
-_Revisar antes de entregar:_ partes do código e da documentação deste repositório foram escritas com apoio de uma ferramenta de IA generativa (Claude, da Anthropic) e revisadas, testadas e adaptadas pela equipe. A funcionalidade de resumo da ficha usa um LLM via Spring AI em tempo de execução, como descrito acima.
