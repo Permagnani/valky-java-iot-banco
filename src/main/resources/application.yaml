@@ -3,7 +3,7 @@ spring:
     name: valky
 
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/valky_db}
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/valky_db}
     username: ${DB_USERNAME:valky_app}
     password: ${DB_PASSWORD}
 
@@ -31,8 +31,9 @@ spring:
   ai:
     openai:
       api-key: ${AI_API_KEY:nao-configurada}
+      base-url: ${SPRING_AI_OPENAI_BASE_URL:https://generativelanguage.googleapis.com/v1beta/openai}
       chat:
-        model: ${AI_MODEL:gpt-4o-mini}
+        model: ${AI_MODEL:gemini-3.5-flash-lite}
 
 server:
   port: 8080
