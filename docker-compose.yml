@@ -1,0 +1,22 @@
+# Sobe PostgreSQL e RabbitMQ para desenvolvimento local.
+#   DB_PASSWORD=sua_senha docker compose up -d
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: valky_db
+      POSTGRES_USER: valky_app
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?defina DB_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - valky_pgdata:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"     # AMQP
+      - "15672:15672"   # painel: http://localhost:15672 (guest/guest)
+
+volumes:
+  valky_pgdata:

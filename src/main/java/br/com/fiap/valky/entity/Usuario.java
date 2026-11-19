@@ -23,6 +23,13 @@ public class Usuario {
     @Column(length = 20)
     private String telefone;
 
+    // columnDefinition com DEFAULT permite o ddl-auto=update adicionar a coluna
+    // em um banco que já tenha usuários cadastrados.
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20,
+            columnDefinition = "varchar(20) default 'CIDADA'")
+    private Perfil perfil = Perfil.CIDADA;
+
     @Column(name = "data_criacao", nullable = false)
     private LocalDateTime dataCriacao = LocalDateTime.now();
 
@@ -67,6 +74,14 @@ public class Usuario {
 
     public void setTelefone(String telefone) {
         this.telefone = telefone;
+    }
+
+    public Perfil getPerfil() {
+        return perfil;
+    }
+
+    public void setPerfil(Perfil perfil) {
+        this.perfil = perfil;
     }
 
     public LocalDateTime getDataCriacao() {

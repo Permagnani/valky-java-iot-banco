@@ -1,50 +1,91 @@
 package br.com.fiap.valky.exception;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
+/** Todas as respostas de erro seguem o formato de {@link ErroResposta}. */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    @ExceptionHandler(RecursoNaoEncontradoException.class)
+    public ResponseEntity<ErroResposta> tratarNaoEncontrado(RecursoNaoEncontradoException ex) {
+        return resposta(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler({ConflitoException.class, DataIntegrityViolationException.class})
+    public ResponseEntity<ErroResposta> tratarConflito(Exception ex) {
+        String mensagem = ex instanceof ConflitoException
+                ? ex.getMessage()
+                : "Os dados enviados conflitam com um registro já existente.";
+        return resposta(HttpStatus.CONFLICT, mensagem);
+    }
+
+    @ExceptionHandler(CredenciaisInvalidasException.class)
+    public ResponseEntity<ErroResposta> tratarCredenciais(CredenciaisInvalidasException ex) {
+        return resposta(HttpStatus.UNAUTHORIZED, ex.getMessage());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErroResposta> tratarAcessoNegado(AccessDeniedException ex) {
+        return resposta(HttpStatus.FORBIDDEN,
+                "Você não tem permissão para acessar este recurso.");
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, String>> tratarErroDeRegra(
-            IllegalArgumentException ex) {
-
-        Map<String, String> resposta = new HashMap<>();
-        resposta.put("erro", ex.getMessage());
-
-        HttpStatus status = ex.getMessage().equals("Usuário não encontrado.")
-                ? HttpStatus.NOT_FOUND
-                : HttpStatus.BAD_REQUEST;
-
-        return ResponseEntity.status(status).body(resposta);
+    public ResponseEntity<ErroResposta> tratarRegraDeNegocio(IllegalArgumentException ex) {
+        return resposta(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> tratarErroDeValidacao(
-            MethodArgumentNotValidException ex) {
-
-        Map<String, String> erros = new HashMap<>();
+    public ResponseEntity<ErroResposta> tratarValidacao(MethodArgumentNotValidException ex) {
+        Map<String, String> campos = new LinkedHashMap<>();
 
         ex.getBindingResult().getFieldErrors().forEach(erro ->
-                erros.put(erro.getField(), erro.getDefaultMessage()));
+                campos.putIfAbsent(erro.getField(), erro.getDefaultMessage()));
 
-        return ResponseEntity.badRequest().body(erros);
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        return ResponseEntity.status(status).body(ErroResposta.comCampos(
+                status.value(), status.getReasonPhrase(),
+                "Há campos inválidos na requisição.", campos));
+    }
+
+    @ExceptionHandler({HttpMessageNotReadableException.class,
+            MethodArgumentTypeMismatchException.class})
+    public ResponseEntity<ErroResposta> tratarRequisicaoMalFormada(Exception ex) {
+        return resposta(HttpStatus.BAD_REQUEST, "Requisição malformada ou com valor inválido.");
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErroResposta> tratarRotaInexistente(NoResourceFoundException ex) {
+        return resposta(HttpStatus.NOT_FOUND, "Recurso não encontrado.");
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, String>> tratarErroInterno(Exception ex) {
-        Map<String, String> resposta = new HashMap<>();
-        resposta.put("erro", "Ocorreu um erro interno no servidor.");
+    public ResponseEntity<ErroResposta> tratarErroInterno(Exception ex) {
+        // detalhes só no log; o cliente nunca vê stack trace
+        log.error("Erro inesperado", ex);
+        return resposta(HttpStatus.INTERNAL_SERVER_ERROR,
+                "Ocorreu um erro interno no servidor.");
+    }
 
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(resposta);
+    private ResponseEntity<ErroResposta> resposta(HttpStatus status, String mensagem) {
+        return ResponseEntity.status(status)
+                .body(ErroResposta.de(status.value(), status.getReasonPhrase(), mensagem));
     }
 }

@@ -1,38 +1,38 @@
 package br.com.fiap.valky.dto;
 
+import br.com.fiap.valky.entity.FichaContexto;
+
 import java.time.LocalDateTime;
 
-public class FichaContextoRespostaDTO {
+public record FichaContextoRespostaDTO(
+        Long id,
+        String informacoesImportantes,
+        String orientacoesEmergencia,
+        String nomeAgressor,
+        String relacaoAgressor,
+        Boolean possuiArma,
+        String veiculo,
+        String enderecosConhecidos,
+        String numeroBo,
+        Boolean medidaProtetiva,
+        String resumoStatus,
+        String resumoIa,
+        LocalDateTime dataAtualizacao) {
 
-    private Long id;
-    private String informacoesImportantes;
-    private String orientacoesEmergencia;
-    private LocalDateTime dataAtualizacao;
-
-    public FichaContextoRespostaDTO(
-            Long id,
-            String informacoesImportantes,
-            String orientacoesEmergencia,
-            LocalDateTime dataAtualizacao) {
-        this.id = id;
-        this.informacoesImportantes = informacoesImportantes;
-        this.orientacoesEmergencia = orientacoesEmergencia;
-        this.dataAtualizacao = dataAtualizacao;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getInformacoesImportantes() {
-        return informacoesImportantes;
-    }
-
-    public String getOrientacoesEmergencia() {
-        return orientacoesEmergencia;
-    }
-
-    public LocalDateTime getDataAtualizacao() {
-        return dataAtualizacao;
+    public static FichaContextoRespostaDTO de(FichaContexto f) {
+        return new FichaContextoRespostaDTO(
+                f.getId(),
+                f.getInformacoesImportantes(),
+                f.getOrientacoesEmergencia(),
+                f.getNomeAgressor(),
+                f.getRelacaoAgressor(),
+                f.getPossuiArma(),
+                f.getVeiculo(),
+                f.getEnderecosConhecidos(),
+                f.getNumeroBo(),
+                f.getMedidaProtetiva(),
+                f.getResumoStatus() == null ? null : f.getResumoStatus().name(),
+                f.getResumoIa(),
+                f.getDataAtualizacao());
     }
 }
