@@ -60,7 +60,7 @@ $env:AI_API_KEY="sua_chave"
 Usam H2 em memória (perfil `test`); não precisam de PostgreSQL, RabbitMQ nem chave de IA.
 
 ### 5. Documentação interativa
-Swagger UI: **http://localhost:8080/swagger-ui.html** — faça login em `/api/auth/login`, copie o `token` e clique em **Authorize**.
+Swagger UI: **[http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)** — faça login em `/api/auth/login`, copie o `token` e clique em **Authorize**.
 
 ## Usuários de teste (criados ao subir, se `SEED_ENABLED` ≠ `false`)
 
